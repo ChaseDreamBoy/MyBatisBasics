@@ -1,0 +1,74 @@
+
+使用 MyBatis 的主要 Java 接口就是 SqlSession。你可以通过这个接口来执行命令，获取映射器和管理事务。
+	我们会概括讨论一下 SqlSession 本身，但是首先我们还是要了解如何获取一个 SqlSession 实例。
+	SqlSessions 是由 SqlSessionFactory 实例创建的。
+	SqlSessionFactory 对象包含创建 SqlSession 实例的所有方法。
+	而 SqlSessionFactory 本身是由 SqlSessionFactoryBuilder 创建的，
+	它可以从 XML、注解或手动配置 Java 代码来创建 SqlSessionFactory。
+
+注意 当 Mybatis 与一些依赖注入框架（如 Spring 或者 Guice）同时使用时，
+	SqlSessions 将被依赖注入框架所创建，
+	所以你不需要使用 SqlSessionFactoryBuilder 或者 SqlSessionFactory，
+	
+
+
+执行语句方法
+ 	这些方法被用来执行定义在 SQL 映射的 XML 文件中的 SELECT、INSERT、UPDATE 和 DELETE 语句。
+ 	它们都会自行解释，每一句都使用语句的 ID 属性和参数对象，
+ 	参数可以是原生类型（自动装箱或包装类）、JavaBean、POJO 或 Map。
+		<T> T selectOne(String statement, Object parameter)
+		<E> List<E> selectList(String statement, Object parameter)
+		<K,V> Map<K,V> selectMap(String statement, Object parameter, String mapKey)
+		int insert(String statement, Object parameter)
+		int update(String statement, Object parameter)
+		int delete(String statement, Object parameter)
+	selectOne 和 selectList 的不同仅仅是 selectOne 必须返回一个对象或 null 值。
+		如果返回值多于一个，那么就会抛出异常。如果你不知道返回对象的数量，请使用 selectList。
+		如果需要查看返回对象是否存在，可行的方案是返回一个值即可（0 或 1）。
+	selectMap 稍微特殊一点，因为它会将返回的对象的其中一个属性作为 key 值，将对象作为 value 值，
+		从而将多结果集转为 Map 类型值。因为并不是所有语句都需要参数，所以这些方法都重载成不需要参数的形式。
+		<T> T selectOne(String statement)
+		<E> List<E> selectList(String statement)
+		<K,V> Map<K,V> selectMap(String statement, String mapKey)
+		int insert(String statement)
+		int update(String statement)
+		int delete(String statement)
+	最后，还有 select 方法的三个高级版本，它们允许你限制返回行数的范围，或者提供自定义结果控制逻辑，
+		这通常在数据集合庞大的情形下使用。
+		<E> List<E> selectList (String statement, Object parameter, RowBounds rowBounds)
+		<K,V> Map<K,V> selectMap(String statement, Object parameter, String mapKey, RowBounds rowbounds)
+		void select (String statement, Object parameter, ResultHandler<T> handler)
+		void select (String statement, Object parameter, RowBounds rowBounds, ResultHandler<T> handler)
+	RowBounds 参数会告诉 MyBatis 略过指定数量的记录，还有限制返回结果的数量。
+		RowBounds 类有一个构造方法来接收 offset 和 limit，另外，它们是不可二次赋值的。
+	int offset = 100;
+	int limit = 25;
+	RowBounds rowBounds = new RowBounds(offset, limit);
+ 	所以在这方面，不同的驱动能够取得不同级别的高效率。为了取得最佳的表现，
+ 		请使用结果集的 SCROLL_SENSITIVE 或 SCROLL_INSENSITIVE 
+ 		的类型(换句话说：不用 FORWARD_ONLY)。
+	ResultHandler 参数允许你按你喜欢的方式处理每一行。
+		你可以将它添加到 List 中、创建 Map 和 Set，或者丢弃每个返回值都可以，
+		它取代了仅保留执行语句过后的总结果列表的死板结果。
+		你可以使用 ResultHandler 做很多事，并且这是 MyBatis 自身内部会使用的方法，
+		以创建结果集列表。
+	package org.apache.ibatis.session;
+	public interface ResultHandler<T> {
+	  void handleResult(ResultContext<? extends T> context);
+	}
+	ResultContext 参数允许你访问结果对象本身、被创建的对象数目、以及返回值为 Boolean 的 stop 方法，
+		你可以使用此 stop 方法来停止 MyBatis 加载更多的结果。
+	使用 ResultHandler 的时候需要注意以下两种限制：
+		从被 ResultHandler 调用的方法返回的数据不会被缓存。
+ 		当使用结果映射集（resultMap）时，MyBatis 大多数情况下需要数行结果来构造外键对象。
+ 			如果你正在使用 ResultHandler，你可以给出外键（association）或者集合（collection）尚未赋值的对象。
+
+
+
+
+
+
+
+
+
+

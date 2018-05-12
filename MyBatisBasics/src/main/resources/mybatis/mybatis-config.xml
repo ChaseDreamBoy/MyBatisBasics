@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<!-- 定义别名 -->
+	<typeAliases>
+		<!-- 配置别名book，代表com.xh.entity.Book，就可以在上下文中引用它 -->
+		<typeAlias alias="book" type="com.xh.entity.Book" />
+	</typeAliases>
+	<!-- 定义数据库信息，默认使用development数据库构建环境 -->
+	<environments default="development">
+		<environment id="development">
+			<!-- 采用JDBC事物管理器 -->
+			<transactionManager type="JDBC" />
+			<dataSource type="POOLED">
+				<property name="driver" value="com.mysql.jdbc.Driver" />
+				<property name="url" value="jdbc:mysql://23.13.5.236:3306/mytest?useUnicode=true&amp;characterEncoding=utf-8" />
+				<property name="username" value="root" />
+				<property name="password" value="accp" />
+			</dataSource>
+		</environment>
+	</environments>
+	<!-- 定义映射器 -->
+	<mappers>
+		<mapper resource="classpath:mybatis/mapper/BookMapper.xml" />
+	</mappers>
+</configuration>

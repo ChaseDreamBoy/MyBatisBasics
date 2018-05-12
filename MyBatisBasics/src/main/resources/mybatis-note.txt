@@ -1,0 +1,63 @@
+
+一、Mybatis的基本构成
+1、SqlSessionFactoryBuilder(构造器):
+	它会根据配置信息或者代码来生成SqlSessionFactory(工厂接口)。
+2、SqlSessionFactory:依靠工厂采生成SqlSession(会话)。
+3、SqlSession:是一个既可以发送SQL去执行并返回结果，也可以获取Mapper的接口。
+4、SQL Mapper:它是MyBazts新设计的组件，它是由一个Java接口和XML文件(或注解)构成的，
+	需要给出对应的SQL和映射规则。它负责发送SQL去执行，并返回结果。
+	
+	
+
+二、构建SqlSessionFactory
+SqlSessionFactory:每个MyBatis的应用都是以SqlSessionFactory的实例为中心的。
+	SqlSessionFactory的实例可以通过SqlSessionFactoryBuilder获得。
+	SqlSessionFactory是一个工厂接口而不是现实类，它的任务是创建SqlSession。 
+	SqlSession类似于‘一个JDBC的Connection对象。
+MyBatis提供了两种模式去创建SqlSessionFactory:
+	一种是XML配置的方式，这是推荐的方式;
+	另一种是代码的方式。
+	能够使用配置文件的时候，我们要尽量的使用配置文件，这样一方面可以避免硬编码(hard code)，
+	一方面方便日后配置人员的修改，避免重复编译代码。
+Configuration的类全限定名为org.apache.ibatis.session.Configuration，
+	它在MyBatis中将以一个Configuration类对象的形式存在，
+	而这个对象将存在于整个MyBatis应用的生命期中，以便重复读取和运用。在内存中的数据是计算机系统中读取速度最快的，
+	我们可以解析一次配置的XML文件保存到Configuration类对象中，方便我们从这个对象中读取配置信息，性能高。
+	单例占用空间小，基本不占用存储空间，而且可以反复使用。
+	Configuration类对象保存着我们配置在MyBatis的信息。
+	在MyBatis中提供了两个SqlSessionFactory的实现类，
+	DefaultSqlSessionFactory和SqlSessionManager。
+	不过SqlSessionManager目前还没有使用，MyBatis中目前使用的是DefaultSqlSessionFactory 
+
+
+
+三、命名空间
+命名空间（Namespaces）命名空间则是必选的，且意于简单地用更长的完全限定名来隔离语句。
+命名解析：为了减少输入量，MyBatis 对所有的命名配置元素（包括语句，结果映射，缓存等）使用了如下的命名解析规则。
+	完全限定名（比如“com.mypackage.MyMapper.selectAllThings”）
+		将被直接查找并且找到即用。
+	短名称（比如“selectAllThings”）
+		如果全局唯一也可以作为一个单独的引用。
+		如果不唯一，有两个或两个以上的相同名称
+		（比如“com.foo.selectAllThings ”和“com.bar.selectAllThings”），
+		那么使用时就会收到错误报告说短名称是不唯一的，这种情况下就必须使用完全限定名。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
